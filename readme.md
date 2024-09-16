@@ -19,7 +19,7 @@ The application should run from the command line, accept user actions and inputs
 - Use a JSON file to store the tasks in the current directory.
 - The JSON file should be created if it does not exist.
 - Use the native file system module of your programming language to interact with the JSON file.
-- Do not use any external libraries or frameworks to build this project.
+- ~~Do not use any external libraries or frameworks to build this project.~~ Used a NuGet for working with JSON.
 - Ensure to handle errors and edge cases gracefully.
 
 Project idea from:
