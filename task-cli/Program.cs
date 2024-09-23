@@ -229,18 +229,16 @@ internal class Program
 
     private static void PrintTaskDetails(int taskId)
     {
-        foreach (var task in _tasks)
+        if (_tasks.TryGetValue(taskId, out var task))
         {
-            if (task.Key != taskId) continue;
             Console.WriteLine("--------------------------------");
             Console.WriteLine(" Task Details:");
             Console.WriteLine("--------------------------------");
-            Console.WriteLine($"{"Task Id",11} : {task.Key}");
-            Console.WriteLine($"{"Task Status",11} : {task.Value.Status}");
-            Console.WriteLine($"{"Created At",11} : {task.Value.CreatedAt}");
-            Console.WriteLine($"{"Updated At",11} : {task.Value.UpdatedAt}");
-            Console.WriteLine($"{"Task Name",11} : {task.Value.Name}");
-            break;
+            Console.WriteLine($"{"Task Id",11} : {taskId}");
+            Console.WriteLine($"{"Task Status",11} : {task.Status}");
+            Console.WriteLine($"{"Created At",11} : {task.CreatedAt}");
+            Console.WriteLine($"{"Updated At",11} : {task.UpdatedAt}");
+            Console.WriteLine($"{"Task Name",11} : {task.Name}");
         }
     }
 
