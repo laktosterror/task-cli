@@ -1,11 +1,10 @@
 ﻿namespace task_cli;
 
-public class Task(int id, string name)
+public class Task(string name)
 {
     private string _name = name;
     public string CreatedAt { get; } = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm");
     public string UpdatedAt { get; set; } = "Never Updated";
-    public int Id { get; } = id;
     public string Status { get; set; } = "Todo";
 
     public string Name

@@ -1,11 +1,11 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json;
 
 namespace task_cli;
 
 internal class Program
 {
     private const string DataPath = @".\data.json";
-    private static List<Task> _tasks = [];
+    private static Dictionary<int, Task> _tasks = new Dictionary<int, Task>();
 
     private static void Main(string[] args)
     {
@@ -150,7 +150,7 @@ internal class Program
     {
         try
         {
-            var json = JsonConvert.SerializeObject(_tasks, Formatting.Indented);
+            string json = JsonSerializer.Serialize(_tasks, new JsonSerializerOptions { WriteIndented = true });
             File.WriteAllText(DataPath, json);
         }
         catch
@@ -161,11 +161,12 @@ internal class Program
 
     private static void ReadTasksFromFile()
     {
+        
         if (File.Exists(DataPath))
             try
             {
-                var json = File.ReadAllText(DataPath);
-                _tasks = JsonConvert.DeserializeObject<List<Task>>(json);
+                string json = File.ReadAllText(DataPath);
+                _tasks = JsonSerializer.Deserialize<Dictionary<int, Task>>(json);
             }
             catch
             {
@@ -206,22 +207,22 @@ internal class Program
         {
             case "done":
                 foreach (var task in _tasks)
-                    if (task.Status == "Done")
-                        Console.WriteLine($"{task.Id,3} | {task.Status,-11} | {task.Name,2}");
+                    if (task.Value.Status == "Done")
+                        Console.WriteLine($"{task.Key,3} | {task.Value.Status,-11} | {task.Value.Name,2}");
                 break;
             case "todo":
                 foreach (var task in _tasks)
-                    if (task.Status == "Todo")
-                        Console.WriteLine($"{task.Id,3} | {task.Status,-11} | {task.Name,2}");
+                    if (task.Value.Status == "Todo")
+                        Console.WriteLine($"{task.Key,3} | {task.Value.Status,-11} | {task.Value.Name,2}");
                 break;
             case "in-progress":
                 foreach (var task in _tasks)
-                    if (task.Status == "In Progress")
-                        Console.WriteLine($"{task.Id,3} | {task.Status,-11} | {task.Name,2}");
+                    if (task.Value.Status == "In Progress")
+                        Console.WriteLine($"{task.Key,3} | {task.Value.Status,-11} | {task.Value.Name,2}");
                 break;
             default:
                 foreach (var task in _tasks)
-                    Console.WriteLine($"{task.Id,3} | {task.Status,-11} | {task.Name,2}");
+                    Console.WriteLine($"{task.Key,3} | {task.Value.Status,-11} | {task.Value.Name,2}");
                 break;
         }
     }
@@ -230,15 +231,15 @@ internal class Program
     {
         foreach (var task in _tasks)
         {
-            if (task.Id != taskId) continue;
+            if (task.Key != taskId) continue;
             Console.WriteLine("--------------------------------");
             Console.WriteLine(" Task Details:");
             Console.WriteLine("--------------------------------");
-            Console.WriteLine($"{"Task Id",11} : {task.Id}");
-            Console.WriteLine($"{"Task Status",11} : {task.Status}");
-            Console.WriteLine($"{"Created At",11} : {task.CreatedAt}");
-            Console.WriteLine($"{"Updated At",11} : {task.UpdatedAt}");
-            Console.WriteLine($"{"Task Name",11} : {task.Name}");
+            Console.WriteLine($"{"Task Id",11} : {task.Key}");
+            Console.WriteLine($"{"Task Status",11} : {task.Value.Status}");
+            Console.WriteLine($"{"Created At",11} : {task.Value.CreatedAt}");
+            Console.WriteLine($"{"Updated At",11} : {task.Value.UpdatedAt}");
+            Console.WriteLine($"{"Task Name",11} : {task.Value.Name}");
             break;
         }
     }
@@ -247,39 +248,31 @@ internal class Program
     {
         var availableTaskId = 0;
         foreach (var task in _tasks)
-            if (task.Id > availableTaskId)
-                availableTaskId = task.Id;
-
+            if (task.Key > availableTaskId)
+                availableTaskId = task.Key;
+        
         availableTaskId++;
-        _tasks.Add(new Task(availableTaskId, taskName));
+        _tasks.Add(availableTaskId, new Task(taskName));
         return availableTaskId;
     }
 
     private static void UpdateTask(int taskId, string taskName)
     {
-        foreach (var task in _tasks)
-            if (task.Id == taskId)
-                task.Name = taskName;
+        _tasks.GetValueOrDefault(taskId).Name = taskName;
     }
 
     private static void DeleteTask(int taskId)
-    {
-        for (var i = 0; i < _tasks.Count; i++)
-            if (_tasks[i].Id == taskId)
-                _tasks.RemoveAt(i);
+    { 
+        _tasks.Remove(taskId);
     }
 
     private static void MarkTaskDone(int taskId)
-    {
-        foreach (var task in _tasks)
-            if (task.Id == taskId)
-                task.Status = "Done";
+    { 
+        _tasks.GetValueOrDefault(taskId).Status = "Done";
     }
 
     private static void MarkTaskInProgress(int taskId)
     {
-        foreach (var task in _tasks)
-            if (task.Id == taskId)
-                task.Status = "In Progress";
+        _tasks.GetValueOrDefault(taskId).Status = "In Progress";
     }
 }
