@@ -256,7 +256,7 @@ internal class Program
 
     private static void UpdateTask(int taskId, string taskName)
     {
-        _tasks.GetValueOrDefault(taskId).Name = taskName;
+        _tasks[taskId].Name = taskName;
     }
 
     private static void DeleteTask(int taskId)
@@ -266,11 +266,11 @@ internal class Program
 
     private static void MarkTaskDone(int taskId)
     { 
-        _tasks.GetValueOrDefault(taskId).Status = "Done";
+        _tasks[taskId].Status = "Done";
     }
 
     private static void MarkTaskInProgress(int taskId)
     {
-        _tasks.GetValueOrDefault(taskId).Status = "In Progress";
+        _tasks[taskId].Status = "In Progress";
     }
 }
