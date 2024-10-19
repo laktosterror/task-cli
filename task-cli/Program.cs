@@ -150,7 +150,7 @@ internal class Program
     {
         try
         {
-            string json = JsonSerializer.Serialize(_tasks, new JsonSerializerOptions { WriteIndented = true });
+            var json = JsonSerializer.Serialize(_tasks, new JsonSerializerOptions { WriteIndented = true });
             File.WriteAllText(DataPath, json);
         }
         catch
@@ -161,17 +161,16 @@ internal class Program
 
     private static void ReadTasksFromFile()
     {
-        
-        if (File.Exists(DataPath))
-            try
-            {
-                string json = File.ReadAllText(DataPath);
-                _tasks = JsonSerializer.Deserialize<Dictionary<int, Task>>(json);
-            }
-            catch
-            {
-                Console.WriteLine("Error: Could not read data from file!");
-            }
+        if (!File.Exists(DataPath)) return;
+        try
+        {
+            var json = File.ReadAllText(DataPath);
+            _tasks = JsonSerializer.Deserialize<Dictionary<int, Task>>(json);
+        }
+        catch
+        {
+            Console.WriteLine("Error: Could not read data from file!");
+        }
     }
 
     private static void PrintHelp()
@@ -206,19 +205,16 @@ internal class Program
         switch (filter.ToLower())
         {
             case "done":
-                foreach (var task in _tasks)
-                    if (task.Value.Status == "Done")
-                        Console.WriteLine($"{task.Key,3} | {task.Value.Status,-11} | {task.Value.Name,2}");
+                foreach (var task in _tasks.Where(task => task.Value.Status == "Done"))
+                    Console.WriteLine($"{task.Key,3} | {task.Value.Status,-11} | {task.Value.Name,2}");
                 break;
             case "todo":
-                foreach (var task in _tasks)
-                    if (task.Value.Status == "Todo")
-                        Console.WriteLine($"{task.Key,3} | {task.Value.Status,-11} | {task.Value.Name,2}");
+                foreach (var task in _tasks.Where(task => task.Value.Status == "Todo"))
+                    Console.WriteLine($"{task.Key,3} | {task.Value.Status,-11} | {task.Value.Name,2}");
                 break;
             case "in-progress":
-                foreach (var task in _tasks)
-                    if (task.Value.Status == "In Progress")
-                        Console.WriteLine($"{task.Key,3} | {task.Value.Status,-11} | {task.Value.Name,2}");
+                foreach (var task in _tasks.Where(task => task.Value.Status == "In Progress"))
+                    Console.WriteLine($"{task.Key,3} | {task.Value.Status,-11} | {task.Value.Name,2}");
                 break;
             default:
                 foreach (var task in _tasks)
@@ -244,11 +240,8 @@ internal class Program
 
     private static int CreateTask(string taskName)
     {
-        var availableTaskId = 0;
-        foreach (var task in _tasks)
-            if (task.Key > availableTaskId)
-                availableTaskId = task.Key;
-        
+        var availableTaskId = _tasks.Select(task => task.Key).Prepend(0).Max();
+
         availableTaskId++;
         _tasks.Add(availableTaskId, new Task(taskName));
         return availableTaskId;
